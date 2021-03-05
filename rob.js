@@ -21,11 +21,16 @@
  * @return {number}
  */
 var rob = function (nums) {
-    let dp = []
-    for(let i = nums.length-1;i>= 0;i--){
-        const robotNow = nums[i] + (dp[i+2]||0)
-        const robotNext = dp[i+1] || 0;
+    if(nums.length<=2){
+        return  Math.max(nums[0] || 0,nums[1] || 0)
+    }
+    let dp = [];
+    dp[0]=nums[0];
+    dp[1]=Math.max(nums[0],nums[1])
+    for(let i = 2;i<nums.length;i++){
+        const robotNow = nums[i] + (dp[i-2]||0)
+        const robotNext = dp[i-1] || 0;
         dp[i] = Math.max(robotNext,robotNow)
     }
-    return dp[0]
+    return dp[dp.length -1]
 };
