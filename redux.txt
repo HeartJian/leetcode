@@ -7,4 +7,27 @@ createStore 内部提供 dispatch 方法,每一次 dispatch action 的时候，�
 
 2.applyMiddleware
 applyMiddleware 返回一个 function ，接收 createStore ，其内部同样返回一个匿名函数，接收 reducer 和 preloadedState 。该匿名函数会调用 createStore 来创建 store，也会声明一个变量 middlewareAPI，里面存储了 getState 和 dispatch，getState 用户获取最新状态，dispatch 是为了后面经过传递进来的中间件map 返回得到增强的 dispatch。、
-返回function 接受createStore 内部再返回一个匿名函数方法接受reducer跟preLoadedState。 创建store,返回增强dispatch getState
+
+3.combineReducers
+combineReducers 的作用就是将所有的 reducer 合并。会先获取传递进来的所有 reducer 的key，然后循环遍历，将 reducer  都挂载到一个对象上，
+这个对象叫 finalReducers。然后返回一个叫 combination 的方法。combination 的作用就是运行以后产生 state，该方法接收初始状态值和 action 作为参数。其内部就是循环遍历 finalReducers。将执行产生状态挂载到 nextState 上。最终会判断状态是否发生了变化(其实就是判断新旧两个对象的地址是否一致)，如果发生变化，就返回最新的状态，否则返回旧的状态。
+
+
+4.compose.js 返回一个增强的JS
+export default function compose(...funcs) {
+  if (funcs.length === 0) {
+    return arg => arg
+  }
+
+  if (funcs.length === 1) {
+    return funcs[0]
+  }
+
+  return funcs.reduce((a, b) => (...args) => a(b(...args)))
+}
+
+
+5.react-redux
+Provider 
+Provider 组件接收store对象，context (上下文对象)，children (React节点元素)。内部有一个存在的变量叫 contextValue，借助了 useMemo，一旦依赖项 store 发生了变化，那么就会创建订阅监听，返回 store 和 subscription。
+
