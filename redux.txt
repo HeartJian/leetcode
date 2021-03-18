@@ -1,0 +1,10 @@
+redux
+
+1.createStore 1.initalState reducers applymiddle 2.dispatch,getState,subscribe
+createStore 执行最初，会判断判断enhancer是否为function，如果是的话 return enhancer(createStore)(reducer, preloadedState)。而 enhancer (增强器) 就是 applyMiddleware(/*...中间件，增强dispatch...*/)
+createStore 内部提供 dispatch 方法,每一次 dispatch action 的时候，都会执行 currentReducer ，而 currentReducer 就是最初传递进来的 reducer 的集合执行完 currentReduce，就会返回最新的状态，然后将状态赋值给 currentState 而 currentState 就是 getState 方法返回所需要的值也就是最新的状态。同时循环遍历 listeners，执行其中的监听方法。 listeners 的数据来自于 subscribe 方法的执行
+
+
+2.applyMiddleware
+applyMiddleware 返回一个 function ，接收 createStore ，其内部同样返回一个匿名函数，接收 reducer 和 preloadedState 。该匿名函数会调用 createStore 来创建 store，也会声明一个变量 middlewareAPI，里面存储了 getState 和 dispatch，getState 用户获取最新状态，dispatch 是为了后面经过传递进来的中间件map 返回得到增强的 dispatch。、
+返回function 接受createStore 内部再返回一个匿名函数方法接受reducer跟preLoadedState。 创建store,返回增强dispatch getState
