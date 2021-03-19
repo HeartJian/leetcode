@@ -1,0 +1,22 @@
+1.缓存
+2.vue跟react有哪些不同
+
+
+
+3.跨域
+1.) Cookie、LocalStorage 和 IndexDB 无法读取
+2.) DOM 和 Js对象无法获得
+3.) AJAX 请求不能发送
+
+
+1、 通过jsonp跨域
+2、 document.domain + iframe跨域
+3、 location.hash + iframe
+4、 window.name + iframe跨域
+5、 postMessage跨域
+6、 跨域资源共享（CORS）
+7、 nginx代理跨域
+8、 nodejs中间件代理跨域
+9、 WebSocket协议跨域
+
+4.react组件
