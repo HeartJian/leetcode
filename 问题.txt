@@ -21,6 +21,23 @@ ETag、If-None-Match
 
 2.vue跟react有哪些不同
 https://juejin.cn/post/6844903668446134286
+数据流的不同:
+大家都知道Vue中默认是支持双向绑定的。在Vue1.0中我们可以实现两种双向绑定：
+父子组件之间，props 可以双向绑定
+组件与DOM之间可以通过 v-model 双向绑定
+在 Vue2.x 中去掉了第一种，也就是父子组件之间不能双向绑定了（但是提供了一个语法糖自动帮你通过事件的方式修改），并且 Vue2.x 已经不鼓励组件对自己的 props 进行任何修改了。
+所以现在我们只有 组件 <--> DOM 之间的双向绑定这一种。
+然而 React 从诞生之初就不支持双向绑定，React一直提倡的是单向数据流，他称之为 onChange/setState()模式。
+
+组件通信的区别:React 本身并不支持自定义事件，Vue中子组件向父组件传递消息有两种方式：事件和回调函数，而且Vue更倾向于使用事件。但是在 React 中我们都是使用回调函数的，这可能是他们二者最大的区别
+监听数据变化的实现原理不同:Vue 通过 getter/setter 以及一些函数的劫持，能精确知道数据变化，不需要特别的优化就能达到很好的性能
+React 默认是通过比较引用的方式进行的，如果不优化（PureComponent/shouldComponentUpdate）可能导致大量不必要的VDOM的重新渲染
+HoC 和 mixins
+在 Vue 中我们组合不同功能的方式是通过 mixin，而在React中我们通过 HoC (高阶组件）
+
+react 封装了一套自己的事件系统
+
+
 
 3.跨域
 协议、域名、端口、子域名
@@ -69,3 +86,81 @@ text/plainmultipart/form-dataapplication/x-www-form-urlencoded
 XSS漏洞：XSS攻击通常指的是通过利用网页开发时留下的漏洞，通过巧妙的方法注入恶意指令代码到网页，使用户加载并执行攻击者恶意制造的网页程序
 注入浏览器Html脚本获取cookies 
 应对cookie劫持，普遍的做法是增加HttpOnly，HttpOnly是在Set-Cookie时候标记的，限制了js脚本对cookie的访问。
+
+
+css 树
+https://juejin.cn/post/6844903824721707022
+byte=>char=>tokens=>node=>dom
+
+this.setState 做了什么
+1.把setState:通过原型链调用enqueueSetState（this,state） 把setState 放入事务队列里，有回调函数再放进回调队列里
+2.enqueueSetState:获取当前组件的Instance,、用enqueueUpdate来处理将要更新的实例对象。把state放入数组
+3.enqueueUpdate：当前如果正处于创建/更新组件的过程（!batchingStrategy.isBatchingUpdates），就不会立刻去更新组件（batchingStrategy.batchedUpdates），而是先把当前的组件放在dirtyComponent里，所以不是每一次的setState都会更新组件~
+4、如果当前事务正在更新过程中，则使用enqueueUpdate将当前组件放在dirtyComponent里。 2、如果当前不在更新过程的话，则执行更新事务。 transaction.perform
+5. transaction.perform 利用wrapp 循环所有directComponent 执行updateComponent
+通过_processPendingState获取nextstate 该函数主要对state进行处理：
+1.如果更新队列为null，那么返回原来的state；
+2.如果更新队列有一个更新，那么返回更新值；
+3.如果更新队列有多个更新，那么通过for循环将它们合并；
+综上说明了，在一个生命周期内，在componentShouldUpdate执行之前，所有的state变化都会被合并，最后统一处理。
+
+
+react
+1.组件的初始化
+每一个组件对象都是通过React.createElement方法创建出来的ReactElement类型的对象
+?typeof
+组件的标识信息
+
+
+key
+DOM结构标识，提升update性能
+
+
+props
+子结构相关信息(有则增加children字段/没有为空)和组件属性(如style)
+
+
+ref
+真实DOM的引用
+
+
+_owner
+_owner === ReactCurrentOwner.current(ReactCurrentOwner.js),值为创建当前组件的对象，默认值为null。
+
+1.组件挂载
+ReactDom.render(<A>,container)
+ReactDOM.render(component,mountNode)的形式对自定义组件/原生DOM/字符串进行挂载，ReactMount._renderSubtreeIntoContaine
+将当前组件添加到前一级的props属性下。(本文开头已说明父子嵌套关系由props提供)
+调用getTopLevelWrapperInContainer方法判断当前容器下是否存在组件，记为prevComponent；如果有即prevComponent为true，执行更新流程，即调用_updateRootComponent方法。若不存在，则卸载。(调用unmountComponentAtNode方法)
+不管是更新还是卸载，最终都要挂载到真实的DOM上。._renderNewRootComponent
+最后执行setInnerHTML是一个方法，将markup设置为container的innerHTML属性，这样就完成了DOM的插入。precacheNode方法是将处理好的组件对象存储在缓存中，提高结构更新的速度。
+
+根据ReactDOM.render()传入不同的参数，React内部会创建四大类封装组件，记为componentInstance。
+而后将其作为参数传入mountComponentIntoNode方法中，由此获得组件对应的HTML，记为变量markup。
+将真实的DOM的属性innerHTML设置为markup，即完成了DOM插入。
+
+
+2.组件的类型与生命周期
+ReactEmptyComponent
+ReactTextComponent
+ReactDOMComponent
+ReactCompositeComponent
+
+
+
+
+setState =>enqueuesetState(this.state)>{
+	instance ;
+	stataqueue
+	enqueueupdate(instance);=>{
+		alAreadlyUpdate  = isBacth
+		batchingStrategy.isBatchingupdate  =true
+		dirctComponent
+		batchUpdate.transaction(isupdate,instance)=>{
+			isupdate : true =>enqueueupdateenque(instance); 
+			false :transaction.perform(callback)=>dirctComponent wrapper1 isupdate,false  wrapper2 updateComponent
+
+		}
+	}
+
+} 
