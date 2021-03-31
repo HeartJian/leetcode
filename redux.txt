@@ -31,3 +31,8 @@ export default function compose(...funcs) {
 Provider 
 Provider 组件接收store对象，context (上下文对象)，children (React节点元素)。内部有一个存在的变量叫 contextValue，借助了 useMemo，一旦依赖项 store 发生了变化，那么就会创建订阅监听，返回 store 和 subscription。
 
+最终原理
+1.connect 将store和dispatch分别映射成props属性对象，返回组件
+2.context 上下文 导出Provider,,和 consumer
+3.Provider 一个接受store的组件，通过context api传递给所有子组件
+

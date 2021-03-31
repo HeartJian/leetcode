@@ -1,0 +1,3 @@
+1.组件挂载更新的时候 通过enqueuePutListener 去注册事件
+2.事件存储 EventPluginHub.putListener
+可见所有的回调函数都以二维数组的形式存储在listenerBank中，根据组件对应的key来进行管理。
