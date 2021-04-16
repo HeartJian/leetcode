@@ -1,0 +1,27 @@
+Webpack 的运行流程是一个串行的过程，从启动到结束会依次执行以下流程：
+
+初始化参数：从配置文件和 Shell 语句中读取与合并参数，得出最终的参数；
+开始编译：用上一步得到的参数初始化 Compiler 对象，加载所有配置的插件，执行对象的 run 方法开始执行编译；
+确定入口：根据配置中的 entry 找出所有的入口文件；
+编译模块：从入口文件出发，调用所有配置的 Loader 对模块进行翻译，再找出该模块依赖的模块，再递归本步骤直到所有入口依赖的文件都经过了本步骤的处理；
+完成模块编译：在经过第4步使用 Loader 翻译完所有模块后，得到了每个模块被翻译后的最终内容以及它们之间的依赖关系；
+输出资源：根据入口和模块之间的依赖关系，组装成一个个包含多个模块的 Chunk，再把每个 Chunk 转换成一个单独的文件加入到输出列表，这步是可以修改输出内容的最后机会；
+输出完成：在确定好输出内容后，根据配置确定输出的路径和文件名，把文件内容写入到文件系统。
+
+在以上过程中，Webpack 会在特定的时间点广播出特定的事件，插件在监听到感兴趣的事件后会执行特定的逻辑，并且插件可以调用 Webpack 提供的 API 改变 Webpack 的运行结果
+
+
+1.读取启动项跟配置项里的参数
+2.createcomplier(option) 
+3.在Compiler的构造函数中主要对编译周期的钩子hook进行了初始化和参数的初始化.
+4.组装config创建complier对象 ，订阅配置文件里的plugin，根据配置订阅一些基本的loader(resolve)，devserver等能力，订阅默认的plugin
+5.执行run方法执行this.compile 定义了三个阶段的函数 run(开始打包) onCompiled(文件输出) finalCallback(编译后处理) 串联起调用逻辑 run => onCompiled => finalCallback
+6.触发make钩子调起之前注册的EntryPlugin的打包逻辑,处理入口文件，调用factorizeModule的时候通过SyncQueue发起创建module类 放入moduleGraph 
+7.调用buildmodule => dobuild(继承于modulenormal类),runloader 方法 执行loader
+8.通过parse方法解析生成的ast 生成依赖模块的信息
+9.在当前Entry模块解析完毕后触发回调回到上次发起processModuleDependencies的调用开启依赖模块的打包.
+10.执行compiler seal
+11.根据入口创建EntryPoint 他是一个chunk group.负责维护与入口相关的依赖.
+12.buildChunkGraph 生成模块的依赖依赖结构 相关的模块会保存到一个chunk group里面
+13._runCodeGenerationJobs调用module的生成代码逻辑,生成代码
+14.最后通过getRenderManifest fileManifest.render进行最后输出文件的拼接
