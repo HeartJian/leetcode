@@ -42,3 +42,8 @@ export type DispatchConfig = {
 批处理：到的事件上挂在的 dispatchListeners循环执行executeDispatch， event.isPropagationStopped()为 true时，中断合成事件的向上遍历执行。 invokeGuardedCallbackImpl最终会执行func.apply(context, funcArgs);
 反向触发这条链，父-> 子，模拟捕获阶段，触发所有 props 中含有 onClickCapture 的实例
 正向触发这条链，子-> 父，模拟冒泡阶段，触发所有 props 中含有 onClick 的实例
+
+
+离散事件（DiscreteEvent）：click、keydown、focusin等，这些事件的触发不是连续的，优先级为0。
+用户阻塞事件（UserBlockingEvent）：drag、scroll、mouseover等，特点是连续触发，阻塞渲染，优先级为1。
+连续事件（ContinuousEvent）：canplay、error、audio标签的timeupdate和canplay，优先级最高，为2。

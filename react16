@@ -82,23 +82,43 @@ oldProps === newProps && workInProgress.type === current.type，即props与fiber
 update时reconcileChildFibers会为生成的Fiber节点带上effectTag属性
 
 循环执行performUnitOfWork方法
-beginWork
+beginWork 组件的状态计算、diff的操作以及render函数的执行，发生在beginWork阶段
 1.根据current 判断是Mount还是update
 2.根据fiber的props与type lanes 设置是否需要didReceiveUpdate ，可直接复用上一次bailoutOnAlreadyFinishedWork
 3.根据fiber tag 找不同的组件处理方法updateFunctionComponent
-4.执行reconcileChildren ，根据mount或update 来使用mountChildFibers（进行diff操作,创建对应的effectTag）
-  或者reconcileChildFibers（新建fiber节点）,返回children节点到currentinprogress,创建dom
+4.执行reconcileChildren ，根据update 来使用reconcileChildFibers（进行diff操作,创建对应的effectTag）
+  或者mount mountChildFibers（新建fiber节点）,返回children节点到currentinprogress,创建dom
 5.叶子节点为null(currentinprogress),执行completework
-completeWork  
-1.根据tag 找到不同的方法处理,有些tag这个步骤直接在beginwork里执行了完了 对于hostComponent执行bubbleProperties
+completeWork  effect链表的收集、被跳过的优先级的收集
+1.根据tag 找到不同的方法处理,对于hostComponent执行bubbleProperties
 2.diff props
 onClick、onChange等回调函数的注册
 处理style prop
 处理DANGEROUSLY_SET_INNER_HTML prop
 处理children prop
 
+// setState
+调用setState时，意味着组件对应的fiber节点产生了一个更新。setState实际上是生成一个update对象，调用enqueueSetState，将这个update对象连接到fiber节点的updateQueue链表中.
 
-mutation 
+
+before mutation 
+1.处理DOM节点渲染/删除后的 autoFocus、blur逻辑
+2.调度useEffect
+
+mutation
+遍历effect 根据对应的flags处理函数处理Fiber(placement update deletion)
+执行页面上dom的增删改查,
+删除时还要删除useEffect的调度函数,调用react生命周期，删除ref
+当effect 为update,fiber.tag为FunctionComponent，会调用commitHookEffectListUnmount。该方法会遍历effectList，执行所有useLayoutEffect hook的销毁函数。
+
+layout 
+此时dom已被插入
+调用生命周期函数 componentDidmount / update,
+调用useLayouteffect
+更新ref
+调用setState回调函数
+
 
 // https://react.iamkasong.com/renderer/beforeMutation.html#%E6%A6%82%E8%A7%88
 // https://zhuanlan.zhihu.com/p/110789300
+// https://zhuanlan.zhihu.com/p/343927857

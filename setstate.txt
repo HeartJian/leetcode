@@ -1,0 +1,20 @@
+this.setstate =>enqueueSetState 获取fiber,根据lane跟事件时间创建update
+并调用enqueueUpdate将它放入updateQueue.shared.pending ，形成环形链表。
+   // 开始调度
+scheduleUpdateOnFiber(fiber, lane, eventTime);
+processUpdateQueue处理更新
+准备阶段
+整理updateQueue。由于优先级的原因，会使得低优先级更新被跳过等待下次执行，这个过程中，又有可能产生新的update。
+所以当处理某次更新的时候，有可能会有两条update队列：上次遗留的和本次新增的。
+上次遗留的就是从firstBaseUpdate 到 lastBaseUpdate 之间的所有update；本次新增的就是新产生的那些的update。
+
+处理阶段
+循环处理上一步整理好的更新队列。这里有两个重点：
+本次更新是否处理update取决于它的优先级（update.lane）和渲染优先级（renderLanes）。
+本次更新的计算结果基于baseState。
+
+完成阶段
+赋值updateQueue.baseState。若此次render没有更新被跳过，那么赋值为新计算的state，否则赋值为第一个被跳过的更新之前的update。
+赋值updateQueue 的 firstBaseUpdate 和 lastBaseUpdate，也就是如果本次有更新被跳过，则将被截取的队列赋值给updateQueue的baseUpdate链表。
+更新workInProgress节点的lanes。更新策略为如果没有优先级被跳过，则意味着本次将update都处理完了，lanes清空。否则将低优先级update的优先级放入lanes。之前说过， 此处是再发起一次调度重做低优先级任务的关键。
+更新workInProgress节点上的memoizedState。
