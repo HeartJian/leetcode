@@ -27,6 +27,16 @@ React应用的根节点通过使current指针在不同Fiber树的rootFiber间切
 即当workInProgress Fiber树构建完成交给Renderer渲染在页面上后，应用根节点的current指针指向workInProgress Fiber树，此时workInProgress Fiber树就变为current Fiber树。
 每次状态更新都会产生新的workInProgress Fiber树，通过current与workInProgress的替换，完成DOM更新。
 
+// Fiber对应组件的类型 Function/Class/Host...
+this.tag = tag;
+// key属性
+this.key = key;
+// 大部分情况同type，某些情况不同，比如FunctionComponent使用React.memo包裹
+this.elementType = null;
+// 对于 FunctionComponent，指函数本身，对于ClassComponent，指class，对于HostComponent，指DOM节点tagName
+this.type = null;
+// Fiber对应的真实DOM节点
+this.stateNode = null;
 
 //  mount
 1.首次执行reactdom时会创建fiberroot和rootfiber 分别为应用的根节点和组件树的根节点
@@ -117,6 +127,13 @@ layout
 调用useLayouteffect
 更新ref
 调用setState回调函数
+
+diff 
+diff 对比的是jsx对象跟currentfiber 生成workinprogressfiber
+单节点根据key遍历fiber 相同则比较type
+多节点：
+第一轮遍历：处理更新的节点。
+第二轮遍历：处理剩下的不属于更新的节点
 
 
 // https://react.iamkasong.com/renderer/beforeMutation.html#%E6%A6%82%E8%A7%88

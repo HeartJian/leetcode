@@ -1,0 +1,208 @@
+object.defineProperty
+问题：
+1.无法监听数组 可以通过观察者模式来监听push shift方法 但是无法监听length长度改变后数组扩容，因为此方法需要存在属性才能监听
+2.对于对象属性需要深度遍历
+newProxy(obj,handler:{
+    set(){},get(){}
+})
+
+
+
+// 深拷贝要考虑
+1.symbol 数据不可遍历
+2.对象循环引用
+let  deepCopy = (obj,map=new Map())=>{
+    if(!Object.prototype.toString.call(obj)!='[object Object]') return obj;
+    if(map.get(i)){
+        return map.get(i)
+    }
+    const newObj = Arrat.isArray(obj) ?[]:{};
+    let keys = [...Object.getOwnPropertyNames(obj),...Objct.getOwnPropertySymbols(obj)];
+    for(let i of keys){
+        if(obj.hasOwnProperty(i)){
+            if(typeof obj[i] === 'object' && obj[i]!= null) {
+                map.add(i,obj[i]);
+                newObj[i]=deepCopy(obj[i],map)
+            }else{
+                newObj[i] = obj[i]
+            }
+        }
+    }
+    return newObj
+}
+
+
+
+
+
+对于 Object.prototype.toString.call(arg)，若参数为 null 或 undefined，直接返回结果。
+
+Object.prototype.toString.call(null);       // => "[object Null]"
+
+Object.prototype.toString.call(undefined);  // => "[object Undefined]"
+若参数不为 null 或 undefined，则将参数转为对象，再作判断。对于原始类型，转为对象的方法即装箱，此处不赘述。
+
+转为对象后，取得该对象的 [Symbol.toStringTag] 属性值（可能会遍历原型链）作为 tag，如无该属性，或该属性值不为字符串类型，则依下表取得 tag, 然后返回 "[object " + tag + "]" 形式的字符串。
+
+
+
+WeakSet 与 Set 的区别：
+
+WeakSet 只能储存对象引用，不能存放值，而 Set 对象都可以
+WeakSet 对象中储存的对象值都是被弱引用的，即垃圾回收机制不考虑 WeakSet 对该对象的应用，
+如果没有其他的变量或属性引用这个对象值，则这个对象将会被垃圾回收掉（不考虑该对象还存在于 WeakSet 中），
+所以，WeakSet 对象里有多少个成员元素，取决于垃圾回收机制有没有运行，运行前后成员个数可能不一致，遍历结束之后，有的成员可能取不到了（被垃圾回收了），WeakSet 对象是无法被遍历的（ES6 规定 WeakSet 不可遍历），也没有办法拿到它包含的所有元素
+垃圾回收方面，栈内存变量基本上用完就回收了，而推内存中的变量因为存在很多不确定的引用，只有当所有调用的变量全部销毁之后才能回收。
+
+
+函数是new出来的，this指向实例
+函数通过call、apply、bind绑定过，this指向绑定的第一个参数
+函数在某个上下文对象中调用（隐式绑定），this指向上下文对象
+以上都不是，this指向全局对象
+
+对象上下文(隐式绑定)
+function foo() { 
+    console.log( this.a );
+}
+var obj = { 
+    a: 2,
+    foo: foo
+};
+obj.foo(); // 2
+
+引式丢失
+
+function foo() { 
+    console.log( this.a );
+}
+var obj = { 
+    a: 2,
+    foo: foo 
+};
+var bar = obj.foo; // 函数别名!
+var a = "xxxxx"
+bar(); // xxxxx
+
+实现call
+
+Function.prototype.callone = function(obj  = window,...args){
+    let fun = Symbol();
+    obj[fun] = this;
+    let res = obj[fun](...args);
+    delete obj.fun;
+    return res
+}
+
+实现bind
+Function.prototype.bindone = function(context,...args){
+   if(typeof this != "function" ){
+    return false
+};
+   let that =this;
+    let fn = function(){
+        let args2 = [...arguments,...args];
+        // new 出来的对象 this 等级更高 无法Bind
+        if(this instanceof fn){
+            that.apply(this,args2)
+        }else{
+            that.apply(context,args2)    
+        }
+    };
+    fn.prototype =that.prototype
+    return fn
+}
+
+
+其实，js 在底层存储变量的时候，会在变量的机器码的低位1-3位存储其类型信息
+
+000：对象
+010：浮点数
+100：字符串
+110：布尔
+1：整数
+but, 对于 undefined 和 null 来说，这两个值的信息存储是有点特殊的。
+
+null：所有机器码均为0
+undefined：用 −2^30 整数来表示
+
+Symbol：
+//for在全局注册symbol 而symbol()
+Symbol.for
+let name = Symbol.for("jyy");
+let name1 = Symbol.for("jyy");
+console.log(name === name1);  // true
+
+. Symbol.keyFor()
+
+这个方法参数是一个通过Symbol.for()创建的symbol类型变量，返回这个symbol变量的描述信息。
+
+let name = Symbol.for("jyy");
+console.log(Symbol.keyFor(name)); // "jyy"
+let name1 = Symbol("jyy");
+console.log(Symbol.keyFor(name1)); // undefined　不能查找Symbol()创建的变量
+
+let person = {
+  [Symbol.toStringTag] : "Person"
+}
+
+const PENDING = 'PENDING'
+const FULFILLED = 'FULFILLED'
+const REJECTED = 'REJECTED'
+
+class MyPromise{
+    constructor(executor){
+        if(typeof executor !== "function"){
+            throw new Error("not function")
+        }
+
+        this.resolveQueue = [];
+        this.rejectQueue = [];
+
+        this._status = PENDING;
+        this._value = undefined;
+
+        let _resolve = (value) =>{
+            if(this._status !== PENDING) return   // 对应规范中的"状态只能由pending到fulfilled或rejected"
+            this._status = FULFILLED              // 变更状态
+            while(this.resolveQueue.length){
+                const callback=this.resolveQueue.shift();
+                callback(value);
+            }
+        }
+
+        let _reject = (value) =>{
+            if(this._status !== PENDING) return   // 对应规范中的"状态只能由pending到fulfilled或rejected"
+            this._status = REJECTED               // 变更状态
+            while(this.rejectQueue.length){
+                const callback=this.rejectQueue.shift();
+                callback(value);
+            }
+        }
+
+         executor(_resolve, _reject)
+    }
+
+    then(resolveFn,rejectFn){
+        return new MyPromise((resolve,reject)=>{
+           const resolveExtend = value=>{
+                try{
+                    let x = resolveFn(value);
+                    x instanceof MyPromise? x.then(resolve,reject) :resolve(x)
+                }catch(error){
+                    reject(error)
+                }
+            };
+            const rejectedFn  = error => {
+                try {
+                    let x = rejectFn(error)
+                    x instanceof MyPromise ? x.then(resolve, reject) : resolve(x)
+                } catch (error) {
+                    reject(error)
+                }
+            }
+        
+        this.resolveQueue.push(resolveExtend);
+        this.rejectQueue.push(rejectedFn);
+        })
+    }
+}
