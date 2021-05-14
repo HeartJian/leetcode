@@ -19,3 +19,96 @@ requestUpdateLane，它首先找出Scheduler中记录的优先级：schedulerPri
 而过期时间是由调度优先级计算的出的，不同的调度优先级对应的过期时间不同。
 
 事件优先级、更新优先级、任务优先级、调度优先级，它们之间是递进的关系。事件优先级由事件本身决定，更新优先级由事件计算得出，然后放到root.pendingLanes， 任务优先级来自root.pendingLanes中最紧急的那些lanes对应的优先级，调度优先级根据任务优先级获取。几种优先级环环相扣，保证了高优任务的优先执行。
+
+
+如何调度优先级
+我们在新的React结构一节讲到，React通过Scheduler调度任务。
+
+具体到代码，每当需要调度任务时，React会调用Scheduler提供的方法runWithPriority。
+该方法接收一个优先级常量与一个回调函数作为参数。回调函数会以优先级高低为顺序排列在一个定时器中并在合适的时间触发。
+
+当一个任务被调度之后，scheduler就会生成一个任务对象（task），它的结构如下所示，除了callback之外暂时不需要关心其他字段的含义。
+var newTask = {
+    id: taskIdCounter++,
+    // 任务函数，也就是 performConcurrentWorkOnRoot
+    callback,
+    // 任务调度优先级，由即将讲到的任务优先级转化而来
+    priorityLevel,
+    // 任务开始执行的时间点
+    startTime,
+    // 任务的过期时间
+    expirationTime,
+    // 在小顶堆任务队列中排序的依据
+    sortIndex: -1,
+  };
+
+  每当生成了一个这样的任务，它就会被挂载到root节点的callbackNode属性上，以表示当前已经有任务被调度了，同时会将任务优先级存储到root的callbackPriority上，
+   表示如果有新的任务进来，必须用它的任务优先级和已有任务的优先级（root.callbackPriority）比较，来决定是否有必要取消已经有的任务。
+   在 调度准备 的最后提到过，update.lane会被放入root.pendingLanes，随后会获取root.pendingLanes中最优先级的那些lanes作为renderLanes。
+   任务优先级的生成就发生在计算renderLanes的阶段，任务优先级其实就是renderLanes对应的lanePriority。
+   为renderLanes是本次更新的优先级基准，所以它对应的lanePriority被作为任务优先级来衡量本次更新任务的优先级权重理所应当。
+   计算renderLanes的函数是getNextLanes，生成任务优先级的函数是getHighestPriorityLanes
+
+   ensureRootIsScheduled函数做的事情，先是准备本次任务调度协调所需要的lanes和任务优先级，然后判断是否真的需要调度
+
+
+
+   同步优先级：调用scheduleSyncCallback去同步执行任务。
+同步批量执行：调用scheduleCallback将任务以立即执行的优先级去加入调度。
+属于concurrent模式的优先级：调用scheduleCallback将任务以上面获取到的新任务优先级去加入调度。
+
+
+创建完update以后scheduleUpdateOnFiber =>root.pendinglanes里收集所有的lanes，取优先级最高的renderLanes，
+ensureRootIsScheduled 执行getNextLanes，获取最高任务优先级，判断是否需要插队
+任务优先级其实就是renderLanes对应的lanePriority(getHighestPriorityLanes获取)。为renderLanes是本次更新的优先级基准，
+所以它对应的lanePriority被作为任务优先级来衡量本次更新任务的优先级权重理所应当。
+ensureRootIsScheduled：
+获取root.callbackNode，即旧任务
+检查任务是否过期，将过期任务放入root.expiredLanes，目的是让过期任务能够以同步优先级去进入调度（立即执行）
+获取renderLanes（优先从root.expiredLanes获取），如果renderLanes是空的，说明不需要调度，直接return掉
+获取本次任务，即新任务的优先级：newCallbackPriority 接下来是协调任务调度的过程：
+首先判断是否有必要发起一次新调度，方法是通过比较新任务的优先级和旧任务的优先级是否相等：
+相等，则说明无需再次发起一次调度，直接复用旧任务即可，让旧任务在处理更新的时候顺便把新任务给做了。
+不相等，则说明新任务的优先级一定高于旧任务，这种情况就是高优先级任务插队，需要把旧任务取消掉。
+
+收集未被处理的lane
+在completeUnitOfWork的时候，fiber.lanes 和 childLanes被一层一层收集到父级fiber的childLanes中，该过程发生在completeUnitOfWork函数中调用的resetChildLanes，它循环fiber节点的子树，将子节点及其兄弟节点中的lanes和childLanes收集到当前正在complete阶段的fiber节点上的childLanes。
+
+假设第3层中的<List/>和<Table/>组件都分别有update因为优先级不够而被跳过，那么在它们父级的div fiber节点completeUnitOfWork的时候，会调用resetChildLanes 把它俩的lanes收集到div fiber.childLanes中，最终把所有的lanes收集到root.pendingLanes.
+
+
+ensureRootIsScheduled取消已有的低优先级更新任务，重新调度一个任务去做高优先级更新，并以root.pendingLanes中最重要的那部分lanes作为渲染优先级
+执行更新任务时跳过updateQueue中的低优先级update，并将它的lane标记到fiber.lanes中。
+fiber节点的complete阶段收集fiber.lanes到父级fiber的childLanes，一直到root。
+commit阶段将所有root.childLanes连同root.lanes一并赋值给root.pendingLanes。
+commit阶段的最后重新发起调度。
+
+
+// 同步渲染模式
+scheduleSyncCallback(
+  performSyncWorkOnRoot.bind(null, root),
+)
+
+
+Scheduler管理着taskQueue和timerQueue两个队列，它会定期将timerQueue中的过期任务放到taskQueue中，然后让调度者通知执行者循环taskQueue执行掉每一个任务。
+执行者控制着每个任务的执行，一旦某个任务的执行时间超出时间片的限制。就会被中断，然后当前的执行者退场，退场之前会通知调度者再去调度一个新的执行者继续完成这个任务，
+新的执行者在执行任务时依旧会根据时间片中断任务，然后退场，重复这一过程，直到当前这个任务彻底完成后，将任务从taskQueue出队。
+taskQueue中每一个任务都被这样处理，最终完成所有任务，这就是Scheduler的完整工作流程。
+
+
+  var newTask = {
+    id: taskIdCounter++,
+    // 任务函数
+    callback,
+    // 任务优先级
+    priorityLevel,
+    // 任务开始的时间
+    startTime,
+    // 任务的过期时间
+    expirationTime,
+    // 在小顶堆队列中排序的依据
+    sortIndex: -1,
+  };
+
+scheduleCallback ：调度入口 创建task ，入队列，执行requestHostCallback 根据时间片使用postmessage执行调用
+  workLoop  会Break  以返回值function 代表当前任务未完成

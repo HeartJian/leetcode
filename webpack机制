@@ -15,8 +15,8 @@ Webpack 的运行流程是一个串行的过程，从启动到结束会依次执
 2.createcomplier(option) 
 3.在Compiler的构造函数中主要对编译周期的钩子hook进行了初始化和参数的初始化.
 4.组装config创建complier对象 ，订阅配置文件里的plugin，根据配置订阅一些基本的loader(resolve)，devserver等能力，订阅默认的plugin
-5.执行run方法执行this.compile 定义了三个阶段的函数 run(开始打包) onCompiled(文件输出) finalCallback(编译后处理) 串联起调用逻辑 run => onCompiled => finalCallback
-6.触发make钩子调起之前注册的EntryPlugin的打包逻辑,处理入口文件，调用factorizeModule的时候通过SyncQueue发起创建module类 放入moduleGraph 
+5.执行this.compile 定义了三个阶段的函数 run(开始打包) onCompiled(文件输出) finalCallback(编译后处理) 串联起调用逻辑 run => onCompiled => finalCallback
+6.执行run方法 触发make钩子调起之前注册的EntryPlugin的打包逻辑,处理入口文件，调用factorizeModule的时候通过SyncQueue发起创建module类 放入moduleGraph 
 7.调用buildmodule => dobuild(继承于modulenormal类),runloader 方法 执行loader
 8.通过parse方法解析生成的ast 生成依赖模块的信息
 9.在当前Entry模块解析完毕后触发回调回到上次发起processModuleDependencies的调用开启依赖模块的打包.

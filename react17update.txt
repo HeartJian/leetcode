@@ -1,0 +1,20 @@
+ReactDOM.render —— HostRoot
+this.setState —— ClassComponent
+this.forceUpdate —— ClassComponent
+useState —— FunctionComponent
+useReducer —— FunctionComponent
+可以看到，一共三种组件（HostRoot | ClassComponent | FunctionComponent）可以触发更新。
+
+ClassComponent与HostRoot使用的UpdateQueue结构如下：
+const queue: UpdateQueue<State> = {
+    baseState: fiber.memoizedState,
+    firstBaseUpdate: null,
+    lastBaseUpdate: null,
+    shared: {
+      pending: null,
+    },
+    effects: null,
+  };
+
+
+https://zhuanlan.zhihu.com/p/344716188

@@ -62,6 +62,9 @@ performUnitOfWork会递归，向下深度遍历
 如果不存在兄弟Fiber，会进入父级Fiber的“归”阶段。
 “递”和“归”阶段会交错执行直到“归”到rootFiber。至此，render阶段的工作就结束了
 
+
+performSyncWorkOnRoot
+performConcurrentWorkOnRoot
 beginWork
 update时：如果current存在，在满足一定条件时可以复用current节点，这样就能克隆current.child作为workInProgress.child，而不需要新建workInProgress.child。
 mount时：除fiberRootNode以外，current === null。会根据fiber.tag不同，创建不同类型的子Fiber节点
@@ -102,7 +105,7 @@ beginWork 组件的状态计算、diff的操作以及render函数的执行，发
 completeWork  effect链表的收集、被跳过的优先级的收集
 1.根据tag 找到不同的方法处理,对于hostComponent执行bubbleProperties
 2.diff props
-onClick、onChange等回调函数的注册
+收集effectlist链
 处理style prop
 处理DANGEROUSLY_SET_INNER_HTML prop
 处理children prop
@@ -133,7 +136,7 @@ diff 对比的是jsx对象跟currentfiber 生成workinprogressfiber
 单节点根据key遍历fiber 相同则比较type
 多节点：
 第一轮遍历：处理更新的节点。
-第二轮遍历：处理剩下的不属于更新的节点
+第二轮遍历：处理剩下的不属于更新的节点,新的在前面不需要动,复用节点原先的位置记为lastPlacedIndex,如果新的index>last就不需要移动
 
 
 // https://react.iamkasong.com/renderer/beforeMutation.html#%E6%A6%82%E8%A7%88
