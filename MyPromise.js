@@ -8,6 +8,7 @@ class MyPromise {
     this._status = PENDING     // Promise状态
     this._resolveQueue = []    // 成功队列, resolve时触发
     this._rejectQueue = []     // 失败队列, reject时触发
+    this._value = undefined
 
     // 由于resolve/reject是在executor内部被调用, 因此需要使用箭头函数固定this指向, 否则找不到this._resolveQueue
     let _resolve = (val) => {
@@ -19,7 +20,7 @@ class MyPromise {
         // 如果使用一个变量而非队列来储存回调,那么即使多次p1.then()也只会执行一次回调
         while (this._resolveQueue.length) {
           const callback = this._resolveQueue.shift()
-          callback(this._value)
+          callback(val)
         }
       }
       setTimeout(run)
@@ -33,7 +34,7 @@ class MyPromise {
         this._value = val               // 变更状态
         while (this._rejectQueue.length) {
           const callback = this._rejectQueue.shift()
-          callback(this._value)
+          callback(val)
         }
       }
       setTimeout(run)
@@ -92,7 +93,71 @@ class MyPromise {
       }
     });
 
-
-
   }
+
+  //finally方法
+  finally(callback) {
+    return this.then(
+      value => MyPromise.resolve(callback()).then(() => value),             // MyPromise.resolve执行回调,并在then中return结果传递给后面的Promise
+      reason => MyPromise.resolve(callback()).then(() => { throw reason })  // reject同理
+    )
+  }
+
+  catch(rejectFn) {
+    return this.then(undefined, rejectFn)
+  }
+
+  static resolve(value) {
+    if (value instanceof MyPromise) return value // 根据规范, 如果参数是Promise实例, 直接return这个实例
+    return new MyPromise(resolve => resolve(value))
+  }
+
+  //静态的reject方法
+static reject(reason) {
+  return new MyPromise((resolve, reject) => reject(reason))
+}
+
+  //静态的all方法
+  static all(promiseArr) {
+    let index = 0
+    let result = []
+    return new MyPromise((resolve, reject) => {
+      promiseArr.forEach((p, i) => {
+        //Promise.resolve(p)用于处理传入值不为Promise的情况
+        MyPromise.resolve(p).then(
+          val => {
+            index++
+            result[i] = val
+            //所有then执行后, resolve结果
+            if (index === promiseArr.length) {
+              resolve(result)
+            }
+          },
+          err => {
+            //有一个Promise被reject时，MyPromise的状态变为reject
+            reject(err)
+          }
+        )
+      })
+    })
+  }
+
+  static race(promiseArr){
+    return new MyPromise((resolve, reject) => {
+      promiseArr.forEach((p, i) => {
+        //Promise.resolve(p)用于处理传入值不为Promise的情况
+        MyPromise.resolve(p).then(
+          val => {
+            //所有then执行后, resolve结果
+            resolve(val)
+          },
+          err => {
+            //有一个Promise被reject时，MyPromise的状态变为reject
+            reject(err)
+          }
+        )
+      })
+    })
+  }
+
 }

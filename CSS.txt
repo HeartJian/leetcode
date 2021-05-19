@@ -1,0 +1,59 @@
+Flex
+容器默认存在两根轴：水平的主轴（main axis）和垂直的交叉轴（cross axis）。主轴的开始位置（与边框的交叉点）叫做main start，结束位置叫做main end；交叉轴的开始位置叫做cross start，结束位置叫做cross end。
+项目默认沿主轴排列。单个项目占据的主轴空间叫做main size，占据的交叉轴空间叫做cross size。
+容器属性
+flex-direction row column row-reverse column-reverse
+flex-wrap: nowrap | wrap | wrap-reverse;
+flex-flow: row nowrap //前两个属性的结合
+justify-content： flex-start（默认值）：左对齐
+    flex-end：右对齐
+    center： 居中
+    space-between：两端对齐，项目之间的间隔都相等。
+    space-around：每个项目两侧的间隔相等。所以，项目之间的间隔比项目与边框的间隔大一倍。
+align-items: flex-start | flex-end | center | baseline | stretch（拉伸为行高）;
+align-content：定义了多根轴线的对齐方式
+项目属性：
+order：排列大小 1，2，3
+flex-grow： 占比的扩大剩余空间 1，2 2就比1大一倍
+flex-shrink：占比缩小到剩余空间 0：1 缩小一倍
+flex-basis：属性定义了在分配多余空间之前，项目占据的主轴空间（main size）。浏览器根据这个属性，计算主轴是否有多余空间。它的默认值为auto，即项目的本来大小。
+它可以设为跟width或height属性一样的值（比如350px），则项目将占据固定空间。
+flex:为前三个属性的合成值 该属性有两个快捷值：auto (1 1 auto) 和 none (0 0 auto)。
+align-self ：属性允许单个项目有与其他项目不一样的对齐方式，可覆盖align-items属性。默认值为auto，表示继承父元素的align-items属性，如果没有父元素，则等同于stretch。 
+
+flex: 1等于
+
+flex-grow：1
+
+flex-shrink：1
+
+flex-basis：0%。 // 按父容器百分比计算
+
+
+清除浮动哦
+当前元素clear:left 清除元素左边的浮动
+浮动元素下加clear:both 
+// 父元素上加一个伪元素
+.clearfix:after {
+    content: '.';
+    height: 0;
+    display: block;
+    clear: both;
+}
+
+
+ID选择器的特殊性值，加0,1,0,0。
+类选择器、属性选择器或伪类，加0,0,1,0。
+元素和伪元素，加0,0,0,1。
+通配选择器*对特殊性没有贡献，即0,0,0,0。
+最后比较特殊的一个标志!important（权重），它没有特殊性值，但它的优先级是最高的，为了方便记忆，可以认为它的特殊性值为1,0,0,0,0。
+    例如：以下规则中选择器的特殊性分别是：    
+
+复制代码
+1 a{color: yellow;} /*特殊性值：0,0,0,1*/
+2 div a{color: green;} /*特殊性值：0,0,0,2*/
+3 .demo a{color: black;} /*特殊性值：0,0,1,1*/
+4 .demo input[type="text"]{color: blue;} /*特殊性值：0,0,2,1*/
+5 .demo *[type="text"]{color: grey;} /*特殊性值：0,0,2,0*/
+6 #demo a{color: orange;} /*特殊性值：0,1,0,1*/
+7 div#demo a{color: red;} /*特殊性值：0,1,0,2*/

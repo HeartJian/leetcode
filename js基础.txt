@@ -145,64 +145,35 @@ let person = {
   [Symbol.toStringTag] : "Person"
 }
 
-const PENDING = 'PENDING'
-const FULFILLED = 'FULFILLED'
-const REJECTED = 'REJECTED'
+0.3+0.1!= 0.4?
+JavaScript中所有数字包括整数和小数都只有一种类型 — Number。它的实现遵循 IEEE 754 标准，使用64位固定长度来表示，也就是标准的 double 双精度浮点数
 
-class MyPromise{
-    constructor(executor){
-        if(typeof executor !== "function"){
-            throw new Error("not function")
-        }
 
-        this.resolveQueue = [];
-        this.rejectQueue = [];
+ javascript是如何保存数字的
+JavaScript 里的数字是采用 IEEE 754 标准的 64 位 double 双精度浮点数
 
-        this._status = PENDING;
-        this._value = undefined;
 
-        let _resolve = (value) =>{
-            if(this._status !== PENDING) return   // 对应规范中的"状态只能由pending到fulfilled或rejected"
-            this._status = FULFILLED              // 变更状态
-            while(this.resolveQueue.length){
-                const callback=this.resolveQueue.shift();
-                callback(value);
-            }
-        }
+sign bit(符号): 用来表示正负号，1位 （0表示正，1表示负）
 
-        let _reject = (value) =>{
-            if(this._status !== PENDING) return   // 对应规范中的"状态只能由pending到fulfilled或rejected"
-            this._status = REJECTED               // 变更状态
-            while(this.rejectQueue.length){
-                const callback=this.rejectQueue.shift();
-                callback(value);
-            }
-        }
 
-         executor(_resolve, _reject)
-    }
+exponent(指数): 用来表示次方数，11位
 
-    then(resolveFn,rejectFn){
-        return new MyPromise((resolve,reject)=>{
-           const resolveExtend = value=>{
-                try{
-                    let x = resolveFn(value);
-                    x instanceof MyPromise? x.then(resolve,reject) :resolve(x)
-                }catch(error){
-                    reject(error)
-                }
-            };
-            const rejectedFn  = error => {
-                try {
-                    let x = rejectFn(error)
-                    x instanceof MyPromise ? x.then(resolve, reject) : resolve(x)
-                } catch (error) {
-                    reject(error)
-                }
-            }
-        
-        this.resolveQueue.push(resolveExtend);
-        this.rejectQueue.push(rejectedFn);
-        })
-    }
-}
+
+mantissa(尾数): 用来表示精确度，52位
+
+0.1 => 0.2 0.0=>0.4 0.00=>0.8 0.000=>1.6 0001 =>1.2 0.00011
+=>0.00011001100110011
+最终得到1×1.100110011*2^-4 （2进制科学计数法）
+sign bit:0
+exponent:-4+1023 =>转2进制
+mantissa：100110011=》共52位
+
+对阶、尾数运算、规格化、舍入处理、溢出判断。我们来简单看一下 0.1 和 0.2 的计算。
+
+首先是对阶，所谓对阶，就是把阶码调整为相同，比如 0.1 是 1.1001100110011…… * 2^-4，阶码是 -4，而 0.2 就是 1.10011001100110...* 2^-3，阶码是 -3，两个阶码不同，
+所以先调整为相同的阶码再进行计算，调整原则是小阶对大阶，也就是 0.1 的 -4 调整为 -3，对应变成 0.11001100110011…… * 2^-3
+我们得到结果为 10.0110011001100110011001100110011001100110011001100111 * 2^-3
+
+将这个结果处理一下，即结果规格化，变成 1.0011001100110011001100110011001100110011001100110011(1) * 2^-2
+
+括号里的 1 意思是说计算后这个 1 超出了范围，所以要被舍弃了。

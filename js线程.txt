@@ -95,7 +95,7 @@ table布局，一个小改动会造成整个table的重新布局，所以，少�
 一个 DOM 节点对应了一个渲染对象，渲染对象依然维持着 DOM 树的树形结构。一个渲染对象知道如何绘制一个 DOM 节点的内容，它通过向一个绘图上下文（GraphicsContext）发出必要的绘制调用来绘制 DOM 节点。
 2、渲染层（RenderLayer）
 这是浏览器渲染期间构建的第一个层模型，处于相同坐标空间（z轴空间）的渲染对象，都将归并到同一个渲染层中，因此根据层叠上下文，不同坐标空间的的渲染对象将形成多个渲染层，以体现它们的层叠关系。
-所以，对于满足形成层叠上下文条件的渲染对象，浏览器会自动为其创建新的渲染层。能够导致浏览器为其创建新的渲染层的，包括以下几类常见的情况：
+所以，对于满足形成层叠上下文条件的渲染对象，浏览器会自动为其创建新的渲染层
 3、图形层（GraphicsLayer）
 GraphicsLayer 其实是一个负责生成最终准备呈现的内容图形的层模型，它拥有一个图形上下文（GraphicsContext），GraphicsContext 会负责输出该层的位图。
 存储在共享内存中的位图将作为纹理上传到 GPU，最后由 GPU 将多个位图进行合成，然后绘制到屏幕上，此时，我们的页面也就展现到了屏幕上。
@@ -103,6 +103,21 @@ GraphicsLayer 其实是一个负责生成最终准备呈现的内容图形的层
 4、合成层（CompositingLayer）
 满足某些特殊条件的渲染层，会被浏览器自动提升为合成层。合成层拥有单独的 GraphicsLayer，而其他不是合成层的渲染层，则和其第一个拥有 GraphicsLayer 的父层共用一个。
 
+根元素 document
+
+有明确的定位属性(relative、fixed、sticky、absolute)
+
+哪些渲染层
+opacity < 1
+有 CSS fliter 属性
+有 CSS mask 属性
+有 CSS mix-blend-mode 属性且值不为 normal
+有 CSS transform 属性且值不为 none
+backface-visibility 属性为 hidden
+有 CSS reflection 属性
+有 CSS column-count 属性且值不为 auto 或者有 CSS column-width 属性且值不为 auto
+当前有对于 opacity、transform、fliter、backdrop-filter 应用动画
+overflow 不为 visible
 
 开启gpu硬件加速
 3D transforms：translate3d、translateZ 等
@@ -123,3 +138,39 @@ position: fixed
 绘制的图层必须传输到 GPU，这些层的数量和大小达到一定量级后，可能会导致传输非常慢，进而导致一些低端和中端设备上出现闪烁；
 隐式合成容易产生过量的合成层，每个合成层都占用额外的内存，而内存是移动设备上的宝贵资源，过多使用内存可能会导致浏览器崩溃，让性能优化适得其反。
 
+
+CSS加载会阻塞页面显示吗？
+
+css加载不会阻塞DOM树的解析
+css加载会阻塞DOM树的渲染
+css加载会阻塞后面js语句的执行
+浏览器遇到 <script>且没有defer或async属性的 标签时，会触发页面渲染，因而如果前面CSS资源尚未加载完毕时，浏览器会等待它加载完毕在执行脚本。
+
+合成：renderobject可能因为z-index等原因分布在不同的渲染层lenderlayer上,渲染层公用一个graphicslayers，也会有一些渲染层会提升成合成层硬件加速，    
+
+
+在 DOM 树中每个节点都会对应一个 LayoutObject，当他们的 LayoutObject 处于相同的坐标空间时，就会形成一个 RenderLayers ，也就是渲染层。RenderLayers 来保证页面元素以正确的顺序合成，这时候就会出现层合成（composite），从而正确处理透明元素和重叠元素的显示。
+
+在 Chrome 中其实有几种不同的层类型：
+    
+        RenderLayers 渲染层，这是负责对应 DOM 子树
+        GraphicsLayers 图形层，这是负责对应 RenderLayers 子树。
+    
+提到 RenderLayers 不得不说 RenderObjects ：RenderObjects 保持了树结构，一个 RenderObjects 知道如何绘制一个 node 的内容， 他通过向一个绘图上下文（GraphicsContext）发出必要的绘制调用来绘制 nodes。
+每个 GraphicsLayer 都有一个 GraphicsContext，GraphicsContext 会负责输出该层的位图，位图是存储在共享内存中，作为纹理上传到 GPU 中，最后由 GPU 将多个位图进行合成，然后 draw 到屏幕上，此时，我们的页面也就展现到了屏幕上。
+GraphicsContext 绘图上下文的责任就是向屏幕进行像素绘制(这个过程是先把像素级的数据写入位图中，然后再显示到显示器)，在chrome里，绘图上下文是包裹了的 Skia（chrome 自己的 2d 图形绘制库） 
+
+将每个复合层绘制成一个单独的图像；
+准备层数据（尺寸、偏移量、透明度等）；
+准备动画着色器（如果适用）；
+将数据发送到GPU；
+
+链接：https://juejin.cn/post/6844903502678867981
+http://jartto.wang/2017/09/29/expand-on-performance-composite/
+
+
+Chrome 拥有两套不同的渲染路径(rendering path)：硬件加速路径和旧软件路径(older software path)
+Chrome 中有不同类型的层： RenderLayer(负责 DOM 子树)和GraphicsLayer(负责 RenderLayer的子树)，只有 GraphicsLayer 是作为纹理(texture)上传给GPU的。
+什么是纹理？可以把它想象成一个从主存储器(例如 RAM)移动到图像存储器(例如 GPU 中的 VRAM)的位图图像(bitmapimage)
+Chrome 使用纹理来从 GPU上获得大块的页面内容。通过将纹理应用到一个非常简单的矩形网格就能很容易匹配不同的位置(position)和变形(transformation)。这也就是3DCSS 的工作原理，它对于快速滚动也十分有效。
+提升到合成层后合成层的位图会交GPU处理，但请注意，仅仅只是合成的处理（把绘图上下文的位图输出进行组合）需要用到GPU，生成合成层的位图处理（绘图上下文的工作）是需要CPU。
