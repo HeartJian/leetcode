@@ -1,0 +1,27 @@
+1.父元素grid
+grid-template-rows
+grid-template-columns
+列可用repeat(auto-fill,200px)
+fr关键字:分配列的剩余空间
+minmax(1fr,2fr) 区间剩余空间
+auto :剩余空间由浏览器定 
+
+ grid-template-areas:"  xx xx xxx"
+ 代表获取下面类名为XX的占位
+   .xx {
+            grid-area: xx;
+        }
+
+
+ grid-auto-flow：自动布局计算 先填满第一格 在计算第二格
+ 默认值是row
+ 当row时需要分配横轴的grid 如gird-template-columns:100px 200px 100px 接着才会往下排
+ grid-auto-flow: row dense 下一层默认把上一层排满
+ justify-items 属性、align-items 属性以及 place-items 属性 跟flex的justify-content 差不多，在Grid单个格子里start end stretch
+ justify-content 属性、align-content 属性以及 place-content 属性 一列或者一行在空间内的左右
+ 隐网格grid-auto-columns 属性和 grid-auto-rows 属性
+
+项目属性
+grid-column-start 属性、grid-column-end 属性、grid-row-start 属性以及grid-row-end 属性：确定从第几个轴线开始占位
+grid-area 属性 跟grid-template-area 搭配使用
+justify-self 属性、align-self 属性以及 place-self 属性 ，单个在格子里的属性位置

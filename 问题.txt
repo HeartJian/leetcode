@@ -177,3 +177,27 @@ Access-Control-Request-Headers： 服务器实际请求所携带的自定义首�
 客户端基于从预检请求获得的信息来判断，是否继续执行跨域请求。
 注意：跨域请求若想发送 cookie 信息，需要服务端设置 resp.setHeader("Access-Control-Allow-Credentials","true"); 客户端设置 withCredentials: true
 
+
+cacheControl字段
+cache-control: public
+当指定使用public时，任何用户都可以对该请求的资源进行缓存
+
+cache-control: private
+当指定private后，响应只以特定的用户为对象，缓存服务器会对该特定用户提供资源缓存服务，对其它用户，则不会进行缓存服务
+
+cache-control: no-cache
+使用这个指令的目的是为了防止从缓存中返回过期的资源，所以使用之前，会进行一次验证
+
+cache-control: no-store
+使用该指令规定缓存不能在本地存储请求或响应的任一部分，所以这个指令才是真正的不进行缓存
+
+cache-control: max-age=604800 秒
+该指令的数值代表资源保存为缓存的最长时间，在该时间内，都会使用这个缓存信息。
+但是当遇到expires这个字段的时候，会优先处理max-age指令，而忽略expires，所以max-age的优先级是高于expires的
+
+cache-control: no-transform
+该指令规定在请求或是响应中，缓存都不能改变实体主体的媒体类型。这样可以防止缓存或代理压缩图片等类似的操作
+
+max-stale
+
+这个指令表达的是缓存时长过期以后，还可以有效。比如现在max-age：60秒，那么max-stale：60秒，现在的缓存时长就是120秒，

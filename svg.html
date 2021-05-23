@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+</head>
+<style>
+    .contain {
+        width: 250px;
+        height: 250px;
+        box-sizing: border-box;
+        margin: 20px auto 0;
+        border: 1px solid #e1e1e1;
+        position: relative;
+    }
+
+    .contain>canvas {
+        width: 250px;
+        height: 250px;
+    }
+
+    .path-placeholder {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        margin-left: -110px;
+        margin-top: -110px;
+        z-index: 0;
+        border: 2px solid blue;
+        width: 220px;
+        height: 220px;
+        box-sizing: border-box;
+        border-radius: 50%;
+    }
+
+    @keyframes spin {
+        to {
+            transform: rotate(1turn);
+        }
+    }
+
+    .mover {
+        margin: 0 auto 0;
+        width: 30px;
+        height: 30px;
+        position: relative;
+        z-index: 100;
+        background: hotpink;
+        border-radius: 50%;
+        box-sizing: border-box;
+        transform-origin: 50% 125px;
+    }
+
+    .mover.move {
+        animation: spin 3s infinite linear;
+    }
+
+
+    svg {
+        stroke: #000;
+        stroke-width: 5;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+        fill: none;
+    }
+</style>
+
+<body>
+    <div class="contain">
+        <canvas class="canvas"></canvas>
+    </div>
+
+    <div class="contain">
+        <div class="path-placeholder"></div>
+        <div class="mover move"></div>
+    </div>
+
+    <svg width="750" height="500">
+        <defs>
+            <g id="leftalign">
+                <!-- 左对齐图标 -->
+                <line x1="3" y1="3" x2="48" y2="3"></line>
+                <line x1="3" y1="19" x2="65" y2="19"></line>
+                <line x1="3" y1="35" x2="48" y2="35"></line>
+                <line x1="3" y1="51" x2="65" y2="51"></line>
+            </g>
+
+            <g id="rightcaret">
+                <!-- 插入图标 -->
+                <polyline points="
+        3 3
+        30 28
+        3 53
+        "></polyline>
+            </g>
+            <g id="browser">
+                <!-- 浏览器图标 -->
+                <rect x="3" y="3" width="80" height="60"></rect>
+                <line x1="3" y1="19" x2="83" y2="19"></line>
+                <line x1="20" y1="3" x2="20" y2="17"></line>
+            </g>
+        </defs>
+        <use href="#leftalign" onclick='click()'></use>
+    </svg>
+</body>
+
+<script>
+    const $ = selector => document.querySelector(selector);
+    const getRads = degrees => Math.PI * degrees / 180;
+    const $canvas = $(".canvas");
+    const ctx = $canvas.getContext("2d");
+    let angle = 0;
+    const velocity = 0.05;
+
+    $canvas.width = $canvas.height = 250;
+
+    const drawBgCircle = () => {
+        ctx.strokeStyle = "blue";
+        ctx.beginPath();
+        ctx.arc($canvas.width / 2, $canvas.height / 2, 100, 0, getRads(360));
+        ctx.closePath();
+        ctx.stroke();
+    }
+
+    const loop = () => {
+        ctx.clearRect(0, 0, $canvas.width, $canvas.height);
+        let x = 125 + Math.cos(angle) * 100
+        let y = 125 + Math.sin(angle) * 100
+
+        drawBgCircle()
+
+        ctx.fillStyle = "hotpink";
+        ctx.beginPath();
+        ctx.arc(x, y, 10, 0, getRads(360));
+        ctx.closePath();
+        ctx.fill();
+
+        angle = angle >= 360
+            ? 0
+            : angle + velocity
+
+        requestAnimationFrame(loop)
+    }
+
+    drawBgCircle()
+    requestAnimationFrame(loop);
+    function click(){
+        console.log(111)
+    }
+</script>
+
+</html>
