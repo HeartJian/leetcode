@@ -1,8 +1,6 @@
-<<<<<<< HEAD
 drage-d3.js实现流程图
 setNode画节点 节点内可以放置document元素 添加事件监听 d3.select可以获取对于的dom节点
 setEdge画边框
-=======
 
 var svg = d3.select("body")     //选择文档中的body元素
     .append("svg")          //添加一个svg元素
@@ -59,4 +57,3 @@ svg.append("g")
   .attr("class","axis")
   .attr("transform","translate(20,130)")
   .call(axis);
->>>>>>> 9403d75e5ede77d1f06316317c70dae943614aa4
