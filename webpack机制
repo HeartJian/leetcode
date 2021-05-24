@@ -25,3 +25,48 @@ Webpack 的运行流程是一个串行的过程，从启动到结束会依次执
 12.buildChunkGraph 生成模块的依赖依赖结构 相关的模块会保存到一个chunk group里面
 13._runCodeGenerationJobs调用module的生成代码逻辑,生成代码
 14.最后通过getRenderManifest fileManifest.render进行最后输出文件的拼接
+
+
+raw-loader：加载文件原始内容（utf-8）
+file-loader：把文件输出到一个文件夹中，在代码中通过相对 URL 去引用输出的文件 (处理图片和字体)
+url-loader：与 file-loader 类似，区别是用户可以设置一个阈值，大于阈值会交给 file-loader 处理，小于阈值时返回文件 base64 形式编码 (处理图片和字体)
+babel-loader：把 ES6 转换成 ES5
+sass-loader：将SCSS/SASS代码转换成CSS
+css-loader：加载 CSS，支持模块化、压缩、文件导入等特性
+style-loader：把 CSS 代码注入到 JavaScript 中，通过 DOM 操作去加载 CSS
+eslint-loader：通过 ESLint 检查 JavaScript 代码
+postcss-loader
+链接：https://juejin.cn/post/6844904094281236487
+
+你用过哪些webpack plugin
+MiniCssExtractPlugin 分离样式文件，CSS 提取为独立文件，支持按需加载 
+HtmlWebpackPlugin 
+ignore-plugin：忽略部分文件
+uglifyjs-webpack-plugin：不支持 ES6 压缩 (Webpack4 以前)
+clean-webpack-plugin: 目录清理
+DefinePlugin：获取常量
+
+4.使用webpack开发时，你用过哪些可以提高效率的插件？
+size-plugin：监控资源体积变化，尽早发现问题
+
+HotModuleReplacementPlugin：模块热替换
+
+
+10.文件指纹是什么？怎么用？
+文件指纹是打包后输出的文件名的后缀。
+
+Hash：和整个项目的构建相关，只要项目文件有修改，整个项目构建的 hash 值就会更改
+Chunkhash：和 Webpack 打包的 chunk 有关，不同的 entry 会生出不同的 chunkhash
+Contenthash：根据文件内容来定义 hash，文件内容不变，则 contenthash 不变
+
+purgecss-webpack-plugin
+去除不用的css
+html-webpack-externals-plugin
+引入需要的cdn文件
+Tree-shaking：webpack内置的去除未引用代码，但是会有只是import的代码，以下可以保留css的同时去除引入
+// package.json文件
+{
+    ...省略
+    "sideEffects": ["./src/**/*.css"]
+}
+
