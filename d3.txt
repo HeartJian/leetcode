@@ -1,3 +1,62 @@
+<<<<<<< HEAD
 drage-d3.js实现流程图
 setNode画节点 节点内可以放置document元素 添加事件监听 d3.select可以获取对于的dom节点
 setEdge画边框
+=======
+
+var svg = d3.select("body")     //选择文档中的body元素
+    .append("svg")          //添加一个svg元素
+    .attr("width", width)       //设定宽度
+    .attr("height", height);    //设定高度
+
+
+ 执行数据绑定，会根据dataSet的数量来确定要给几个rect，后面再赋值对应元素的属性
+ svg.selectAll("rect")
+     .data(dataset)
+     .enter()
+     .append("rect")
+       .attr("x",20)
+     .attr("y",function(d,i){
+          return i * rectHeight;
+     })
+     .attr("width",function(d){
+          return d;
+     })
+     .attr("height",rectHeight-2)
+     .attr("fill","steelblue");
+
+d3还有个功能是比例尺化数据 可以按照有序或者线性实现数据的比例尺化
+var linear = d3.scale.linear()
+      .domain([0, d3.max(dataset)]) //如果是有序比例尺则
+      .range([0, 250]);
+
+颜色有序比例尺
+var index = [0, 1, 2, 3, 4];
+var color = ["red", "blue", "green", "yellow", "black"];
+var ordinal = d3.scale.ordinal()
+        .domain(index)
+        .range(color);
+ 
+ordinal(0); //返回 red
+ordinal(2); //返回 green
+ordinal(4); //返回 black
+
+设立坐标轴
+
+//数据
+var dataset = [ 2.5 , 2.1 , 1.7 , 1.3 , 0.9 ];
+//定义比例尺
+var linear = d3.scale.linear()
+      .domain([0, d3.max(dataset)])
+      .range([0, 250]);
+ 
+var axis = d3.svg.axis()
+     .scale(linear)      //指定比例尺
+     .orient("bottom")   //指定刻度的方向
+     .ticks(7);          //指定刻度的数量
+
+svg.append("g")
+  .attr("class","axis")
+  .attr("transform","translate(20,130)")
+  .call(axis);
+>>>>>>> 9403d75e5ede77d1f06316317c70dae943614aa4
