@@ -57,3 +57,12 @@ ID选择器的特殊性值，加0,1,0,0。
 5 .demo *[type="text"]{color: grey;} /*特殊性值：0,0,2,0*/
 6 #demo a{color: orange;} /*特殊性值：0,1,0,1*/
 7 div#demo a{color: red;} /*特殊性值：0,1,0,2*/
+
+BFC
+body 根元素
+浮动元素：float 除 none 以外的值
+绝对定位元素：position (absolute、fixed)
+display 为 inline-block、table-cells、flex
+overflow 除了 visible 以外的值 (hidden、auto、scroll)
+
+外边距重叠 去除浮动

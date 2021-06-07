@@ -6,7 +6,6 @@ class myVue {
         this.$el = document.querySelector(options.el);
         // 数据域
         this.$data = options.data;
-
         // 保存数据model与view相关的指令，当model改变时，我们会触发其中的指令类更新，保证view也能实时更新
         this._directives = {};
         // 数据劫持，重新定义数据的 set 和 get 方法
@@ -134,6 +133,7 @@ const app = new myVue({
 
 
 // proxy 实现
+// 不用深度遍历，可以使用数组方法
 const input = document.getElementById('input');
 const p = document.getElementById('p');
 const obj = {};
