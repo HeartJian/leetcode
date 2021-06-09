@@ -82,10 +82,15 @@ let eventhub = new EventHub()
 function a(x) {
     console.log('a===>', x)
 }
-
 function b(x, y) {
     console.log('b===>', x, y)
 }
 eventhub.on(a, 'console');
 eventhub.once(b, 'console');
-eventhub.emit('console', 1, 2)
+eventhub.emit('console', 1, 2);
+
+
+
+for (var a = 0; a = a + 1; a<10) {
+    console.log(a)
+}
