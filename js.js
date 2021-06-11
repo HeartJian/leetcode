@@ -77,7 +77,6 @@ class EventHub {
     }
 }
 
-
 let eventhub = new EventHub()
 function a(x) {
     console.log('a===>', x)
@@ -89,8 +88,26 @@ eventhub.on(a, 'console');
 eventhub.once(b, 'console');
 eventhub.emit('console', 1, 2);
 
+// 实现一个节流防抖函数
+function wrapper(fun, time) {
+    const now = new Date().getTime();
 
 
-for (var a = 0; a = a + 1; a<10) {
-    console.log(a)
+}
+
+
+function wrapper2(fun, time) {
+
+}
+
+function wrapper2(fun, time) {
+    let timer = null;
+    return function () {
+        if (!timer) {
+            timer = setTimeout(() => {
+                clearTimeout(timer);
+                fun()
+            }, time);
+        }
+    }
 }
