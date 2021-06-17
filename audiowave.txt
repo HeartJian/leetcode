@@ -1,0 +1,10 @@
+00H ~ 03H  52 49 46 46     对应的是RIFF音频文件规范
+04H ~ 07H  48 10 03 00     对应的是后面文件的大小，小端模式所以是00031048 ，换算为十进制的200776
+08H ~ 0BH  57 41 56 45     对应的是标示符WAVE
+————————————————
+版权声明：本文为CSDN博主「destiny_m」的原创文章，遵循CC 4.0 BY-SA版权协议，转载请附上原文出处链接及本声明。
+原文链接：https://blog.csdn.net/mlkiller/article/details/12567139
+
+
+之前的数据为描述音频文件的头数据文件,描述data区域跟文件区域大小差50个字节 去除了开头的riff 加上了结尾的data ，当String.fromCharCodeDataview(buffer).getUnit8(38)
+标准化的wav文件都是44.1k的采样率，采用16位的数字表示

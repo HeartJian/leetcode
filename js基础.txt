@@ -178,9 +178,109 @@ mantissa：100110011=》共52位
 
 括号里的 1 意思是说计算后这个 1 超出了范围，所以要被舍弃了。
 
+js 内存泄漏
+1.dom的引用没删除，导致浏览器去掉dom时无法垃圾回收
+2.闭包导致内存泄漏
+3.创建了过多的全局变量
+3.定时器
+
+如何分析
+1.memory拍2次内存快照 并使用一次垃圾回收做对比
+2.performance里的录制线变高
+
+老祖宗的差别，link属于XHTML标签，而@import完全是css提供的一种方式。
+
+　　　　link标签除了可以加载css外，还可以做很多其他的事情，比如定义RSS，定义rel连接属性等，@import只能加载CSS。
+
+差别2：加载顺序的差别：当一个页面被夹在的时候（就是被浏览者浏览的时候），link引用的CSS会同时被加载，而@import引用的CSS会等到页面全部被下载完再加载。所以有时候浏览@import加载CSS的页面时会没有样式（就是闪烁），网速慢的时候还挺明显。
+
+差别3：兼容性的差别。由于@import是CSS2.1提出的所以老的浏览器不支持，@import只有在IE5以上的才能识别，而link标签无此问题，完全兼容。
+
+差别4：使用dom控制样式时的差别。当时用JavaScript控制dom去改变样式的时候，只能使用link标签，因为@import不是dom可以控制的（不支持
+
+
+for in 会把原型链的便利出来
+object.keys 不会
+调用ToObject(O)将结果赋值给变量obj
+调用EnumerableOwnPropertyNames(obj, "key")将结果赋值给变量nameList
+调用CreateArrayFromList(nameList)得到最终的结果
+声明变量keys值为一个空列表（List类型）
+把每个Number类型的属性，按数值大小升序排序，并依次添加到keys中
+把每个String类型的属性，按创建时间升序排序，并依次添加到keys中
+把每个Symbol类型的属性，按创建时间升序排序，并依次添加到keys中
+将keys返回（return keys）
+for of
+
 
 页面间通讯
 1.broadcastChannel:同源页面广播
 2.postMessage ：可以往iframe页面传递，可跨域，但是必须要有一个window.open后产生的对象
 3.sharedwork:另外启动一个线程
 4.服务端缓存，同源页面间indexDb stroage 等
+
+
+Cache-Control字段： 
+no-cache 与服务器进行通讯看看是否被修改过再下载
+no-store 每次都要求重新下载
+max-age 资源在接下来多久被复用
+
+预编译发生在函数执行之前。预编译四部曲为：
+
+创建AO对象
+找形参和变量声明，将变量和形参作为AO属性名，值为undefined
+将实参和形参相统一
+在函数体里找到函数声明，值赋予函数体。最后程序输出变量值的时候，就是从AO对象中拿。
+
+js执行上下文分三种,推入执行栈中调用
+全局执行上下文： 代码开始执行时首先进入的环境。
+函数执行上下文：函数调用时，会开始执行函数中的代码。
+eval执行上下文：不建议使用，可忽略。
+那么，执行上下文的周期，分为两个阶段：
+创建阶段
+创建词法环境
+生成变量对象(VO)，建立作用域链、作用域链、作用域链（重要的事说三遍）
+确认this指向，并绑定this
+执行阶段。这个阶段进行变量赋值，函数引用及执行代码。
+
+
+var d = 'abc';
+function a(){
+    console.log("函数a");
+};
+console.log(a);   // ƒ a(){ console.log("函数a"); }
+a();		      // '函数a'
+var a = "变量a";  
+console.log(a);   // '变量a'
+a();			  // a is not a function
+var c = 123;
+
+// 栗子预编后相当于：
+function a(){
+    console.log("函数a");
+};
+var d;
+console.log(a);  // ƒ a(){ console.log("函数a"); }
+a(); 			 // '函数a'
+
+a = "变量a";     // 此时变量a赋值，函数声明被覆盖
+
+console.log(a); // "变量a"
+a(); 		// a is not a function
+https://juejin.cn/post/6971727286856843295
+
+
+this指向问题
+https://juejin.cn/post/6844903862306865165
+所有的调用转化为call看问题
+func(p1, p2) // func.call(undefined, p1, p2) 
+obj.child.method(p1, p2) // func.call(child, p1, p2) 
+
+
+defer： 几个script标签按顺序加载
+会等到所有的defer脚本加载完毕并按照顺序执行，执行完毕后会触发DOMContentLoaded事件。
+async ：谁先加载完谁先执行
+async脚本的加载不计入DOMContentLoaded事件统计
+
+DOMContentLoaded：DOMContentLoaded 的触发不需要等待图片等其他资源加载完成。
+load，页面上所有的资源（图片，音频，视频等）被加载以后才会触发load事件
+js脚本需要等css加载完菜执行
