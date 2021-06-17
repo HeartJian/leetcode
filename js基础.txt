@@ -284,3 +284,53 @@ async脚本的加载不计入DOMContentLoaded事件统计
 DOMContentLoaded：DOMContentLoaded 的触发不需要等待图片等其他资源加载完成。
 load，页面上所有的资源（图片，音频，视频等）被加载以后才会触发load事件
 js脚本需要等css加载完菜执行
+
+sort函数：不传参默认变为utf-8用ASCLL码比较 数字大于大写字母大于小写字母
+
+typeof
+使用低位存储了变量的类型信息：
+000：对象
+1：整数
+010：浮点数
+100：字符串
+110：布尔
+有 2 个值比较特殊：
+undefined：用 - （−2^30）表示。
+null：对应机器码的 NULL 指针，一般是全零。
+
+浏览器跨域
+同源策略限制内容有：
+Cookie、LocalStorage、IndexedDB 等存储性内容
+DOM 节点
+AJAX 请求发送后，结果被浏览器拦截了
+简单请求
+条件1：使用下列方法之一：
+GET
+HEAD
+POST
+条件2：Content-Type 的值仅限于下列三者之一：
+text/plain
+multipart/form-data
+application/x-www-form-urlencoded
+复杂请求
+  if (whitList.includes(origin)) {
+    // 设置哪个源可以访问我
+    res.setHeader('Access-Control-Allow-Origin', origin)
+    // 允许携带哪个头访问我
+    res.setHeader('Access-Control-Allow-Headers', 'name')
+    // 允许哪个方法访问我
+    res.setHeader('Access-Control-Allow-Methods', 'PUT')
+    // 允许携带cookie
+    res.setHeader('Access-Control-Allow-Credentials', true)
+    // 预检的存活时间
+    res.setHeader('Access-Control-Max-Age', 6)
+    // 允许返回的头
+    res.setHeader('Access-Control-Expose-Headers', 'name')
+
+1. CommonJS 模块输出的是一个值的拷贝，ES6 模块输出的是值的引用。
+CommonJS 模块输出的是值的拷贝，也就是说，一旦输出一个值，模块内部的变化就影响不到这个值。
+ES6 模块的运行机制与 CommonJS 不一样。JS 引擎对脚本静态分析的时候，遇到模块加载命令import，就会生成一个只读引用。等到脚本真正执行时，再根据这个只读引用，到被加载的那个模块里面去取值。换句话说，ES6 的import有点像 Unix 系统的“符号连接”，原始值变了，import加载的值也会跟着变。因此，ES6 模块是动态引用，并且不会缓存值，模块里面的变量绑定其所在的模块。
+
+2. CommonJS 模块是运行时加载，ES6 模块是编译时输出接口。
+运行时加载: CommonJS 模块就是对象；即在输入时是先加载整个模块，生成一个对象，然后再从这个对象上面读取方法，这种加载称为“运行时加载”。
+编译时加载: ES6 模块不是对象，而是通过 export 命令显式指定输出的代码，import时采用静态命令的形式。即在import时可以指定加载某个输出值，而不是加载整个模块，这种加载称为“编译时加载”。
