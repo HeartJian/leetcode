@@ -7,6 +7,16 @@ function reduceDuplicate(array) {
     return result;
 }
 
+// 实现lodash 的get
+function get(obj,path){
+    const paths = path.replace(/\[(\d+)\]/g,".$1").split(".");
+    let queryObj =obj;
+    for(let p of paths){
+        queryObj = Object(queryObj)[p];
+    }
+    return queryObj;
+}
+
 
 // 实现一个累加add
 function add() {
