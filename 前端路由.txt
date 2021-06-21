@@ -24,7 +24,7 @@ getSnapshotBeforeUpdate (在commit前夕执行)  -> React更新DOM和refs
 componentDidUpdate
 
 
-// hash路由跟history
+// hash路由跟history react路由
 Router组件使用Provider向下提供history对象，以及location的变更监听
 Route接收loaction(props || context)，Router尝试其属性path与location进行匹配，匹配检测(children > component > render)，内容渲染
 Link 跳转链接，生成一个a标签，禁用默认事件，js处理点击事件跳转(history.push) -> Link与直接使用a标签的区别是a页面会重新加载一下，Link只重新渲染Route组件部分

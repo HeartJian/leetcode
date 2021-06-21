@@ -36,3 +36,7 @@ preload 将脚本的加载及执行分离，加了 preload 的 <link> 标签的�
 
 <script src="//cdn.staticfile.org/jquery/3.2.1/jquery.min.js"></script>
 否则 chrome 大约会在 3s 后报一个 warning 来提醒你这个资源被浪费了完全没有被使用到。
+
+link标签做预加载
+<link rel="preload" href="non-critial.css" as="style" />
+<link href="non-critial.css" rel="stylesheet" />

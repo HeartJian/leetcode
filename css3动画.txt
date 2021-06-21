@@ -9,7 +9,7 @@ xx  每个@keyframes 规则包含多个关键帧，也就是一段样式块语�
         margin: 200px auto;
         background-color: #cd4a48;
         position: relative;
-        animation: moveHover 5s ease-in-out 0.2s;
+        animation: moveHover 5s ease-in-out 0.2s; // key的name 动画时间 效果 延时
 
     }
 

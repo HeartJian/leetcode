@@ -1,0 +1,61 @@
+左右宽300 中间自适应
+1.float布局
+.left{
+    float：left;
+    width:300px
+}
+.right{
+    float:right;
+    width:300px
+}
+.middle{
+    margin-left:300px;
+    margin-right:300px;
+}
+2.绝对定位布局
+.left{
+    position:absolute;
+    left:0;
+    width:300px
+}
+.right{
+    position:absolute;
+    right:0;
+    width:300px
+}
+.middle{
+    margin-left:300px;
+    margin-right:300px;
+}
+3.flex
+.father{
+    display:flex;
+}
+.left{
+    flex:0 0 300px;
+}
+.right{
+    flex:0 0 300px;
+}
+.middle{
+    flex:1 1 auto;
+}
+4.使用grid布局
+    .grid {
+            display: grid;
+            grid-template-columns: 300px auto 300px;
+            grid-template-rows: 500px;
+        }
+5.table布局
+.father{
+    display:table;
+    width:100%
+}
+.left{
+    display:table-cell;
+    width:300;
+}
+.right{
+    display:table-cell;
+    width:300;
+}

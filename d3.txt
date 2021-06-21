@@ -57,3 +57,7 @@ svg.append("g")
   .attr("class","axis")
   .attr("transform","translate(20,130)")
   .call(axis);
+
+
+
+  d3这个库的优点：数据绑定 比例尺 坐标轴 
