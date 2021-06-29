@@ -135,7 +135,7 @@ diff
 diff 对比的是jsx对象跟currentfiber 生成workinprogressfiber
 单节点根据key遍历fiber 相同则比较type
 多节点：
-第一轮遍历：处理更新的节点。
+第一轮遍历：根据key处理更新的节点。
 第二轮遍历：处理剩下的不属于更新的节点,新的在前面不需要动,复用节点原先的位置记为lastPlacedIndex,如果新的index>last就不需要移动
 
 
