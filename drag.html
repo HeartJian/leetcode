@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.js"></script>
+</head>
+<style>
+
+
+    .container {
+        display: grid;
+        grid-template-columns: 200px ;
+        gap: 10px;
+    }
+
+    .container>div {
+        width: 200px;
+        height: 200px;
+    }
+</style>
+
+<body>
+    <div class="container">
+        <div style="background-color: brown;" draggable="true"></div>
+        <div style="background-color: green;" draggable="true"></div>
+        <div style="background-color: grey;" draggable="true"></div>
+        <div style="background-color: blue;" draggable="true"></div>
+    </div>
+</body>
+<script>
+    const container = document.querySelector(".container");
+    Array.from(container.children).forEach((a,idx) => {
+        a.id = idx;
+        a.ondrag = (e) => {
+            console.log(1)
+        }
+        a.ondragstart = (e) => {
+            event.dataTransfer.setData("Box", event.target.id);
+            console.log(2)
+        }
+        a.ondragend = (e) => {
+            console.log(3)
+        }
+    });
+    container.ondragenter = (e) => { e.preventDefault() };
+    container.ondragover = (e) => { e.preventDefault() };
+    container.ondragleave = (e) => { e.preventDefault() };
+    container.ondrop = (event) => {
+        event.preventDefault();
+        // 将拖拽元素追加到改放置元素中
+        var data = event.dataTransfer.getData("Box");
+        var $DivEl = $('.container div');
+        for (let i = 0; i < $DivEl.length; i++) {
+            let x = $DivEl[i].getBoundingClientRect().left;
+            let y = $DivEl[i].getBoundingClientRect().top;
+            if (event.clientY > y && event.clientY < (y + 200)) {
+                console.log("data==>", $DivEl[i],$(`#${data}`)[0])
+                container.insertBefore($(`#${data}`)[0],$DivEl[i]);
+            }
+        }
+    }
+
+
+</script>
+
+</html>
